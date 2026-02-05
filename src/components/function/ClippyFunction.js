@@ -9,7 +9,10 @@ import clippyNo from '../../assets/clippyNo.gif';
 
 export const clippyPhrase = {
     inspiration: [
-        { phrase: "I’m Clippy, your personal assistant – I’m here to help!", animation: clippy1 },
+        { phrase: "One day, you'll leave this world behind, so live a life you will remember ", animation: clippy1 },
+        { phrase: "The world will always pay a high price for those who are absolutely outstanding. ", animation: clippy3 },
+        { phrase: "Keep moving forward regardless of the storm or the rain. ", animation: clippy4 },
+        { phrase: "Even if you are not ready for the day, it cannot always be night. ", animation: clippy2 },
         { phrase: "Sometimes I just popup for no particular reason, like now.", animation: clippy7 },
         { phrase: "You’re doing great! Keep up the good work.", animation: clippy3 },
         { phrase: "Everyone makes mistakes – it’s how we learn and grow.", animation: clippy1 },
