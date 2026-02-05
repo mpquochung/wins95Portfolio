@@ -56,8 +56,21 @@ const publicationPdfMap = import.meta.glob('./assets/papers/*.pdf', {
   import: 'default',
 });
 
+const publicationImageMap = import.meta.glob('./assets/papers/*.{png,jpg,jpeg,webp,gif,avif,svg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
+
 const publicationPdfByName = new Map(
   Object.entries(publicationPdfMap).map(([path, url]) => {
+    const fileName = path.split('/').pop() || '';
+    return [fileName, url];
+  })
+);
+
+const publicationImageByName = new Map(
+  Object.entries(publicationImageMap).map(([path, url]) => {
     const fileName = path.split('/').pop() || '';
     return [fileName, url];
   })
@@ -86,6 +99,17 @@ function resolvePublicationPdf(pdfFile) {
   if (publicationPdfMap[pdfFile]) return publicationPdfMap[pdfFile];
   const fileName = pdfFile.split('/').pop();
   return publicationPdfByName.get(fileName) || null;
+}
+
+function resolvePublicationImage(imageValue) {
+  if (!imageValue) return null;
+  if (typeof imageValue === 'string') {
+    if (imageValue.startsWith('http') || imageValue.startsWith('data:')) return imageValue;
+    if (publicationImageMap[imageValue]) return publicationImageMap[imageValue];
+    const fileName = imageValue.split('/').pop();
+    return publicationImageByName.get(fileName) || null;
+  }
+  return imageValue;
 }
 
 
@@ -300,6 +324,7 @@ function App() {
         ...entry,
         key: toFolderKey(entry.id || entry.title),
         pdfUrl: resolvePublicationPdf(entry.pdfFile),
+        imageUrl: resolvePublicationImage(entry.image),
       }));
   }, []);
 

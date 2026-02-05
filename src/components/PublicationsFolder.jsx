@@ -185,7 +185,7 @@ function PublicationsFolder() {
                 </div>
               </div>
               <div className="publication_image">
-                <img src={entry.image || defaultThumb} alt={entry.title} />
+                <img src={entry.imageUrl || defaultThumb} alt={entry.title} />
               </div>
             </div>
           ))}
