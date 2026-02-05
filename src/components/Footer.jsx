@@ -356,47 +356,16 @@ export default function Footer() {
       }
 
 
-    useEffect(() => { // display clippy when windows start
-        clearTimeout(firstTimoutShowclippy.current)
-        clearTimeout(ClearTOclippySendemailfunction.current)
-        clearTimeout(ClearTOclippyThanksYouFunction.curremt)
-        clearTimeout(ClearTOSongfunction.current)
-        clearTimeout(ClearTOclippyUsernameFunction.current)
-
-        setShowClippy(true)
-        firstTimoutShowclippy.current = setTimeout(() => {
-            setShowClippy(false)
-        }, 10000);
+    useEffect(() => { // always show clippy and rotate quotes every 12 seconds
+        setShowClippy(true);
+        const interval = setInterval(() => {
+            setClippyIndex(prev => (prev + 1) % clippyPhrase.inspiration.length);
+        }, 12000);
 
         return () => {
-            clearTimeout(firstTimoutShowclippy.current);
+            clearInterval(interval);
         };
-    },[])
-
-
-    useEffect(() => { //random clippy time
-        clearTimeout(SecondRandomTimeoutShowClippy.current)
-        const randomTime = Math.floor(Math.random() * (50000 - 30000 + 1)) + 30000;
-
-        clearTimeout(ClearTOclippySendemailfunction.current)
-        clearTimeout(ClearTOclippyThanksYouFunction.curremt)
-        clearTimeout(ClearTOSongfunction.current)
-
-        RandomTimeoutShowClippy.current = setTimeout(() => { // random clippy index from length
-        const randomIndex = Math.floor(Math.random() * clippyPhrase.inspiration.length)
-                setClippyIndex(randomIndex);
-                setShowClippy(true);
-        SecondRandomTimeoutShowClippy.current = setTimeout(() => {
-                setShowClippy(false);
-                setRandomClippyPopup(prev => !prev);
-            }, 10000);
-        }, randomTime);
-
-        return () => {
-            clearTimeout(RandomTimeoutShowClippy.current);
-            clearTimeout(SecondRandomTimeoutShowClippy.current);
-        };
-    }, [randomClippyPopup]);
+    }, []);
 
 
     function dontTouch() { // click on clippy while speaking, will active angry clippy
