@@ -356,21 +356,23 @@ export default function Footer() {
       }
 
 
-    useEffect(() => { // show briefly, rotate quotes every 12 seconds
+    useEffect(() => { // show 9s, hide ~1.5s, repeat
+        const SHOW_MS = 9000;
+        const HIDE_MS = 1500;
         let hideTimeout = null;
 
         const showOnce = () => {
             setShowClippy(true);
             hideTimeout = setTimeout(() => {
                 setShowClippy(false);
-            }, 1000);
+            }, SHOW_MS);
         };
 
         showOnce();
         const interval = setInterval(() => {
             setClippyIndex(prev => (prev + 1) % clippyPhrase.inspiration.length);
             showOnce();
-        }, 12000);
+        }, SHOW_MS + HIDE_MS);
 
         return () => {
             clearInterval(interval);
