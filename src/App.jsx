@@ -2097,8 +2097,8 @@ function handleShowMobile(name) {
 
     clearFunction.current = setTimeout(() => {
       setterFunction(false);
-      setShowClippy(true);
-    }, 8000);
+      setShowClippy(false);
+    }, 1000);
   }
 
 

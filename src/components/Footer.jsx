@@ -356,14 +356,25 @@ export default function Footer() {
       }
 
 
-    useEffect(() => { // always show clippy and rotate quotes every 12 seconds
-        setShowClippy(true);
+    useEffect(() => { // show briefly, rotate quotes every 12 seconds
+        let hideTimeout = null;
+
+        const showOnce = () => {
+            setShowClippy(true);
+            hideTimeout = setTimeout(() => {
+                setShowClippy(false);
+            }, 1000);
+        };
+
+        showOnce();
         const interval = setInterval(() => {
             setClippyIndex(prev => (prev + 1) % clippyPhrase.inspiration.length);
-        }, 6000);
+            showOnce();
+        }, 12000);
 
         return () => {
             clearInterval(interval);
+            if (hideTimeout) clearTimeout(hideTimeout);
         };
     }, []);
 
