@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import Draggable from 'react-draggable'
 import { motion } from 'framer-motion';
 import resumefile from '../assets/resume.png'
+import resumePdf from '../assets/cv_public.pdf'
 import '../css/ResumeFile.css'
 
 
@@ -139,11 +140,11 @@ function ResumeFile() {
           >
             {ResumeFileExpand.show ? (
               <iframe 
-              onClick={() => setDownloadBox(false)}
-              src="./src/assets/cv_feb26.pdf#toolbar=0&navpanes=0" 
-              frameBorder='0'
-            >
-            </iframe>
+                onClick={() => setDownloadBox(false)}
+                src={`${resumePdf}#toolbar=0&navpanes=0`}
+                frameBorder='0'
+              >
+              </iframe>
             ):(null)}
             
           </div>

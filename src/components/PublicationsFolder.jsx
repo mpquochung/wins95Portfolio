@@ -185,7 +185,15 @@ function PublicationsFolder() {
                 </div>
               </div>
               <div className="publication_image">
-                <img src={entry.imageUrl || defaultThumb} alt={entry.title} />
+                <img
+                  src={entry.imageUrl || defaultThumb}
+                  alt={entry.title}
+                  onError={(event) => {
+                    if (event.currentTarget.src !== defaultThumb) {
+                      event.currentTarget.src = defaultThumb;
+                    }
+                  }}
+                />
               </div>
             </div>
           ))}
