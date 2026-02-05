@@ -360,7 +360,7 @@ export default function Footer() {
         setShowClippy(true);
         const interval = setInterval(() => {
             setClippyIndex(prev => (prev + 1) % clippyPhrase.inspiration.length);
-        }, 12000);
+        }, 6000);
 
         return () => {
             clearInterval(interval);
