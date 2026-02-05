@@ -8,7 +8,7 @@ import photoicon from '../assets/jpeg.png';
 import binEmp from '../assets/bin2.png'
 import bin from '../assets/bin.png'
 
-function EmptyFolder({state, setState, refState, folderName, photoMode, paintMode, userCreatedFolderMode, type}) {
+function EmptyFolder({state, setState, refState, folderName, folderLabel, photoMode, paintMode, userCreatedFolderMode, type}) {
 
   const iconRefs = useRef([]);
 
@@ -89,6 +89,8 @@ function EmptyFolder({state, setState, refState, folderName, photoMode, paintMod
     setLastTapTime(now);
   }
 
+  const isPublicationGrid = folderName === 'Publications';
+
   const parentItemContainerStyle = {
     background: '#c5c4c4',
     padding: '0',
@@ -105,6 +107,8 @@ function EmptyFolder({state, setState, refState, folderName, photoMode, paintMod
   useEffect(() => { // force re-render, ref can be tracked
     setKeyRef(prev => prev + 1)
   },[useState.show])
+
+  const titleLabel = folderLabel || folderName;
 
   return (
     <Draggable
@@ -160,7 +164,7 @@ function EmptyFolder({state, setState, refState, folderName, photoMode, paintMod
             alt="" 
             style={photoMode ? { width: '18px', top: '4px' } : {}}
           />
-            <span>{photoMode? currentPhoto.name : folderName}</span>
+            <span>{photoMode? currentPhoto.name : titleLabel}</span>
           </div>
           <div className="folder_barbtn">
             <div onClick={ !isTouchDevice ? (e) => {
@@ -231,7 +235,7 @@ function EmptyFolder({state, setState, refState, folderName, photoMode, paintMod
           <div className='parent_item_container' key={key}
             style={photoMode ? parentItemContainerStyle : {}}
           >
-            <div className="item_container" 
+            <div className={`item_container${folderName === 'Picture' ? ' picture-grid' : ''}${isPublicationGrid ? ' publications-grid' : ''}`} 
               style={{
                 position: dragging && !photoMode ? 'absolute' : '',
                 margin: photoMode? 'auto': '',
@@ -254,14 +258,17 @@ function EmptyFolder({state, setState, refState, folderName, photoMode, paintMod
                   margin: '0 auto',
                 }}/>
               )}
-                {desktopIcon.filter(icon => icon.folderId === folderName).map(icon => (
+                {desktopIcon.filter(icon => icon.folderId === folderName).map(icon => {
+                const displayName = icon.label || icon.name;
+                return (
                 <Fragment key={icon.name}>
                   <Draggable
-                  axis="both" 
+                  axis={folderName === 'Picture' || isPublicationGrid ? 'none' : 'both'} 
                   handle={'.icon'}
                   grid={[10, 10]}
                   scale={1}
                   bounds={false}
+                  disabled={folderName === 'Picture' || isPublicationGrid}
                   onStart={() => {
                     setDropTargetFolder('')
                     handleSetFocusItemTrue(folderName)
@@ -316,12 +323,14 @@ function EmptyFolder({state, setState, refState, folderName, photoMode, paintMod
                     <p className={icon.focus ? 'p_focus' : 'p_normal'}
                       style={iconTextSize(iconScreenSize)}
                     >
-                      {icon.name}
+                      {folderName === 'Picture' && icon.type === '.jpeg'
+                        ? displayName.slice(0, 12)
+                        : displayName}
                     </p>
                   </div>
                   </Draggable>
                 </Fragment>
-              ))}
+              )})}
             </div>
           </div>
         </div>
@@ -376,6 +385,7 @@ EmptyFolder.propTypes = {
   setState: PropTypes.func.isRequired,
   refState: PropTypes.object,
   folderName: PropTypes.string.isRequired,
+  folderLabel: PropTypes.string,
   photoMode: PropTypes.bool,
   paintMode: PropTypes.bool,
 };

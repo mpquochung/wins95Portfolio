@@ -19,6 +19,7 @@ import { BsFillCaretRightFill } from "react-icons/bs";
 import binEmp from '../assets/bin2.png'
 import bin from '../assets/bin.png'
 import news from '../assets/news.png'
+import newsWidgetIcon from '../assets/tumblr_6e39f59074aaaddcb1eedf8e264879e5_b54889ba_540.webp'
 
 
 export default function Footer() {
@@ -40,6 +41,7 @@ export default function Footer() {
         tileScreen, setTileScreen,
         onlineUser,
         newsPopup, setNewsPopup,
+        newsWidgetVisible, setNewsWidgetVisible,
         btcShow, setBtcShow,
         isTouchDevice,
         desktopIcon,
@@ -85,7 +87,7 @@ export default function Footer() {
             className: "project",
             imgSrc: project,
             imgAlt: "project",
-            spanText: "Project",
+            spanText: "Games",
             arrow: true,
             onClick: () => {
                 setProjectStartBar(!projectStartBar)
@@ -442,7 +444,7 @@ export default function Footer() {
         { label: '3480x2160', value: 5 }
     ];
 
-    const projectFolderItem = desktopIcon.filter(icon => icon.folderId === 'Project').length
+    const projectFolderItem = desktopIcon.filter(icon => icon.folderId === 'Games').length
     const resumeFolderItem = desktopIcon.filter(icon => icon.folderId === 'Resume').length
 
     const recycleBin = desktopIcon.filter(icon => icon.folderId === 'RecycleBin');
@@ -472,7 +474,12 @@ export default function Footer() {
 
                     onWheel={handleWheelScroll}
                 >
-                    {tap.map((item, index) => (
+                    {tap.map((item, index) => {
+                        const tapIcon = desktopIcon.find(icon => icon.name === item);
+                        const tapLabel = tapIcon?.label || item;
+                        const tapImg = tapIcon?.pic || item;
+                        const tapType = tapIcon?.type;
+                        return (
                         <div className="start_tap" key={index}
                             onClick={(e) => {
                                 setStartActive(false)
@@ -485,11 +492,11 @@ export default function Footer() {
                             <img src={
                                 item === 'RecycleBin' && recycleBinLength === 0 ? binEmp
                                 : item === 'RecycleBin' && recycleBinLength > 0 ? bin
-                                : imageMapping(item)} alt={''} />
+                                : imageMapping(tapImg, tapType)} alt={''} />
                             }
-                            <p>{item}</p>
+                            <p>{tapLabel}</p>
                         </div>
-                    ))}
+                    )})}
                 </div>
 
                 <div className="time"
@@ -501,6 +508,12 @@ export default function Footer() {
                                     e.stopPropagation()
                                     setNewsPopup(!newsPopup)
                                 }}
+                        />
+                        <img src={newsWidgetIcon} alt="announcements" className="news_widget_icon"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                setNewsWidgetVisible(!newsWidgetVisible)
+                            }}
                         />
                         {isBitcoinInstalled && (
                             <img src={btc_icon} alt="btc_icon"
@@ -563,7 +576,7 @@ export default function Footer() {
                                 ref={projectRef}
                                 style={{display: projectFolderItem === 0 ? 'none' : ''}}
                             >
-                            {desktopIcon.filter(icon => icon.folderId === 'Project').map(icon => (
+                            {desktopIcon.filter(icon => icon.folderId === 'Games').map(icon => (
                                 <div className="icon_sub_start" key={icon.name}
                                     onClick={() => handleShow(icon.name)}
                                 >

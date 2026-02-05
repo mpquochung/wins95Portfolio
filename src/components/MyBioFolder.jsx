@@ -12,6 +12,7 @@ import '../css/MyBioFolder.css'
 function MyBioFolder() {
 
   const [generalTap, setGenerapTap] = useState(true)
+  const [aboutMeTap, setAboutMeTap] = useState(false)
   const [technologyTap, setTechnologyTap] = useState(false)
   const [hobbTap, setHobbTap] = useState(false)
 
@@ -26,14 +27,41 @@ function MyBioFolder() {
     deleteTap,
    } = useContext(UseContext);
 
-   const technologyText = ( // don't have to use DangerousHTML
+  const aboutMeText = (
     <>
-        I mainly use <span>JavaScript</span> and <span>React</span> 
-        to create user-friendly interfaces, often incorporating <span>Tailwind</span> CSS for styling. 
-        I've also developed full-stack projects with <span>Node.js</span>, 
-        <span>Express</span>, <span>MongoDB</span> and 
-        <span>MySQL</span> by bringing together the front end and back end 
-        for seamless applications.
+        As of Feb. 2026
+        <br />
+        <br />
+        I am a senior undergraduate student at the National Economics University (NEU) Vietnam, majoring in Data Science.
+        Currently, I work as an AI Scientist at N2TP, where I focus on machine learning and AI-driven research projects.
+        My research interests include <span>multimodal learning</span> and <span>hardware-aware optimization</span>.
+        <br />
+        <br />
+        Previously, I was a visiting student at Yuan Ze University, Taiwan, where I conducted a research project on robotics imitation learning under the supervision of <a href="https://www.cse.yzu.edu.tw/en/people/professor?name=Naeem%20Ul%20Islam" target="_blank" rel="noreferrer">Asst. Prof. Naeem Ul Islam</a>.
+        <br />
+        <br />
+        I began my research journey in my sophomore year at the NEU Codelab, under the supervision of <a href="https://scholar.google.com/citations?user=KhEo3bsAAAAJ&hl=en" target="_blank" rel="noreferrer">Xuan Lam Pham, PhD</a>, Dean of the Faculty of Information Technology, 
+        and in collaboration with <a href="https://scholar.google.com/citations?user=KB9_4rgAAAAJ&hl=en" target="_blank" rel="noreferrer">Toan Luu, Phd</a>.
+        When in NEU, I research in NLP, AI for education, Machine Learning.
+        <br />
+        <br />
+        <span style={{ color: 'green' }}>
+        I am actively seeking PhD positions in Machine Learning, AI, or related fields for the Fall 2027 intake.
+        </span>
+    </>
+  );
+
+  const technologyText = ( // don't have to use DangerousHTML
+    <>
+        I primarily work with <span>Python</span> for research, 
+        focusing on designing and running large-scale experiments, 
+        training machine learning models, and building reproducible pipelines 
+        for empirical studies in <span>multimodal learning</span>. 
+        My current work is research-driven, with an emphasis on model analysis, 
+        experimental rigor, and producing results for academic publication. 
+        I also have prior experience with <span>JavaScript</span> and <span>React</span> 
+        from coursework projects, but my present focus is firmly on 
+        Python-based research and advancing core machine learning methodologies.
     </>
   );
 
@@ -41,37 +69,37 @@ function MyBioFolder() {
     <>
         <strong>Objective:</strong>
         <br />
-        <span>Building pixel perfect web </span>
-        <span>application.</span>
+        <span>Research scientist in AI and Machine Learning.</span>
         <br />
         <br />
         <strong>Information:</strong>
         <br />
-        <span>Yute S. Lilitprapun</span>
+        <span>Martin (Hung) Mai</span>
         <br />
-        <span>Front-end developer</span>
+        <span>AI Scientist</span>
         <br />
-        <span>929-235-5371</span>
+        <span>+84 785 334 804 </span>
+        <br />
+        <span>maphquochung@gmail.com</span>
+        <br />
+        <span>pqhung.mai@n2tp.com</span>
         <br />
         <br />
         <strong>Location: </strong>
         <br />
-        <span>New York City, Queens</span>
+        <span>Hanoi City, Vietnam</span>
         <br />
-        <span>Open to work</span>
-        <br />
-        <span>On Site / Remote</span>
+        <span>Open to PhD position</span>
     </>
   );
 
   const hobbyText = ( // don't have to use DangerousHTML
     <>
-        In my free time, I love gaming with friends. 
-        When I'm not at my computer, I make an effort 
-        to hit the gym, discover new restaurants, 
-        and go on adventures like hiking. 
-        I played basketball in high school and would love to 
-        get back into it!
+        In my free time, I love gaming with friends & watching Arsenal 
+        (though Arsenal brings so much pain). 
+        When I'm not at my computer, I play sport, go to café, 
+        discover new restaurants, or text to random people. 
+        I play music (frequently), football (regularly) , badminton (sporadically) and go to bar (occasionally but the occasion happens regularly).
     </>
   );
 
@@ -89,6 +117,7 @@ function MyBioFolder() {
 
   function handleBiotap(name) {
     setGenerapTap(name === 'general');
+    setAboutMeTap(name === 'about');
     setTechnologyTap(name === 'technology');
     setHobbTap(name === 'hobby');
   }
@@ -110,12 +139,20 @@ function MyBioFolder() {
         grid={[1, 1]}
         scale={1}
         disabled={MybioExpand.expand}
+        position={MybioExpand.show ? { x: MybioExpand.x, y: MybioExpand.y } : undefined}
         bounds={{top: 0}}
         defaultPosition={{ 
           x: window.innerWidth <= 500 ? 35 : 70,
           y: window.innerWidth <= 500 ? 35 : 40,
         }}
         onStop={(event, data) => handleDragStop(event, data)}
+        onDrag={(event, data) => {
+          setMybioExpand(prev => ({
+            ...prev,
+            x: data.x,
+            y: data.y
+          }))
+        }}
         onStart={() => handleSetFocusItemTrue('About')}
       >
         <motion.div className='bio_folder' 
@@ -168,6 +205,10 @@ function MyBioFolder() {
               style={generalTap ? activeBtnStyle : {}}
           >General
           </p>
+          <p onClick={() => handleBiotap('about')}
+              style={aboutMeTap ? activeBtnStyle : {}}
+          >About me
+          </p>
           <p onClick={() => handleBiotap('technology')}
               style={technologyTap ? activeBtnStyle : {}}
           >Technology
@@ -190,7 +231,13 @@ function MyBioFolder() {
               className="biotext_container">
 
               <p className={generalTap? 'bio_text_1' : 'bio_text_1_other'}>
-                {generalTap? bioText : technologyTap? technologyText : hobbyText}
+                {generalTap
+                  ? bioText
+                  : aboutMeTap
+                  ? aboutMeText
+                  : technologyTap
+                  ? technologyText
+                  : hobbyText}
               </p>   
             </div>
               

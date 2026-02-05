@@ -4,19 +4,6 @@ import { useDrag, useDrop } from 'react-dnd';
 import UseContext from '../Context';
 import dayjs from 'dayjs';
 import Switch from "react-switch";
-import { handleDoubleClickPhotoOpen } from '../components/function/AppFunctions'
-
-import p1 from '../assets/001.jpg';
-import p2 from '../assets/002.jpg';
-import p3 from '../assets/003.jpg';
-import p4 from '../assets/004.jpg';
-import p5 from '../assets/005.jpg';
-import p6 from '../assets/006.jpg';
-import p7 from '../assets/007.jpg';
-import p8 from '../assets/008.jpg';
-import p9 from '../assets/009.jpg';
-import p10 from '../assets/010.jpg';
-import p11 from '../assets/011.jpg';
 import chat from '../assets/chat.gif';
 import settings from '../assets/settings.png';
 import fortune from '../assets/fortune.gif';
@@ -50,12 +37,12 @@ import layer from '../assets/layer_tile.png'
 
 
 
-const imageList = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11];
 const ItemType = 'TILE';
 
 export default function Tile({ id, content, index, size, color, moveTile, imageMapping, disable, randomBGFunction }) {
   const { 
-    setCurrentPhoto,
+    pictureList,
+    openPictureByIndex,
     allNews,
     city, 
     Cel, setCel, 
@@ -78,11 +65,12 @@ export default function Tile({ id, content, index, size, color, moveTile, imageM
   // Cycle images for "Picture"
   useEffect(() => {
     if (content !== 'Picture') return;
+    if (!pictureList.length) return;
     const interval = setInterval(() => {
-      setImgIndex((prev) => (prev + 1) % imageList.length);
+      setImgIndex((prev) => (prev + 1) % pictureList.length);
     }, 8000);
     return () => clearInterval(interval);
-  }, [content]);
+  }, [content, pictureList.length]);
 
   // Drop zone
   const [, drop] = useDrop({
@@ -123,8 +111,14 @@ export default function Tile({ id, content, index, size, color, moveTile, imageM
   function tileBG(content, disable) {
     switch (content) {
       case 'Picture':
+        if (!pictureList.length) {
+          return {
+            backgroundImage: 'none',
+            pointerEvents: disable ? 'none' : 'auto',
+          };
+        }
         return {
-          backgroundImage: `url(${imageList[imgIndex]})`,
+          backgroundImage: `url(${pictureList[imgIndex]?.photoSrc})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           pointerEvents: disable ? 'none' : 'auto',
@@ -206,7 +200,7 @@ export default function Tile({ id, content, index, size, color, moveTile, imageM
           backgroundSize: '40px',
           backgroundRepeat: 'no-repeat',
         };
-      case 'Project':
+      case 'Games':
         return {
           backgroundImage: `url(${projecttile})`,
           backgroundPosition: '50% 57%',
@@ -395,8 +389,9 @@ export default function Tile({ id, content, index, size, color, moveTile, imageM
         return;
 
       case 'Picture':
-        handleDoubleClickPhotoOpen(imgIndex + 1,  setCurrentPhoto)
-        handleShow('Photo');
+        if (openPictureByIndex(imgIndex)) {
+          handleShow('Photo');
+        }
         setTileScreen(false);
         return;
 

@@ -17,6 +17,7 @@ import bg9 from '../assets/bg9.jpg'
 import bg10 from '../assets/live_grey.gif'
 import bg11 from '../assets/live_light_grey.gif'
 import bg12 from '../assets/Computer_bg.png'
+import xpWallpaper from '../assets/xpwallpaper.jpg'
 import eff1 from '../assets/noise.png'
 import eff2 from '../assets/glitch2.jpg'
 import eff3 from '../assets/brokenTV.jpg'
@@ -39,7 +40,7 @@ function BgSetting() {
   
   const [ localBg, setLocalBg ] = useState(() => {
     const prevBg = localStorage.getItem('background')
-    return prevBg? prevBg : null
+    return prevBg? prevBg : xpWallpaper
   })
   const [ localEffect, setLocalEffect ] = useState(() => {
     const prevEffect = localStorage.getItem('effect')
@@ -49,7 +50,7 @@ function BgSetting() {
   const [ themeColor, setThemeColor ] = useState(null)
   const [ localtheme, setLocalTheme ] = useState(() => {
     const prevTheme = localStorage.getItem('theme')
-    return prevTheme? prevTheme : null
+    return prevTheme? prevTheme : '#4B6894'
   })
   const [ selectedBg2, setSelectedBg2 ] = useState(null)
   const [ selectedBg2Effect, setSelectedBg2Effect ] = useState(null)
@@ -90,6 +91,7 @@ function BgSetting() {
         { value: 11, label: 'Live Wavy Grey', color: '#3C3C3C', image: bg10, barColor: '#3C3C3C'},
         { value: 12, label: 'Live Wavy Light Grey', color: '#828890', image: bg11, barColor: '#4a4a4a'},
         { value: 14, label: 'Computer Disk', color: '#098684', image: bg12, barColor: '#14045c'},
+        { value: 15, label: 'XP Wallpaper', color: '#4B6894', image: xpWallpaper, barColor: '#4B6894'},
       ];
       
       
@@ -150,16 +152,30 @@ function BgSetting() {
       useEffect(() => {
         const bodyBG = document.getElementsByTagName('body')[0];
         const rootEffect = document.getElementById('root');
+        const storedBg = localStorage.getItem('background');
+        const storedTheme = localStorage.getItem('theme');
+        const storedBar = localStorage.getItem('barcolor');
+        const effectiveBg = storedBg || xpWallpaper;
+        const effectiveTheme = storedTheme || '#4B6894';
+
+        if (!storedBg) {
+          localStorage.setItem('background', effectiveBg);
+          localStorage.setItem('theme', effectiveTheme);
+          localStorage.setItem('barcolor', storedBar || effectiveTheme);
+          setLocalBg(effectiveBg);
+          setLocalTheme(effectiveTheme);
+          setBarcolor(storedBar || effectiveTheme);
+        }
 
         if (localEffect) { // for effect
           rootEffect.style.setProperty('--before-bg-image', `url(${localEffect})`);
 
         }
 
-        if (localBg) { // for background
-          bodyBG.style.backgroundColor = localtheme
-          bodyBG.style.backgroundImage = `url(${localBg})`;
-          setTileBG(localtheme)
+        if (effectiveBg) { // for background
+          bodyBG.style.backgroundColor = effectiveTheme
+          bodyBG.style.backgroundImage = `url(${effectiveBg})`;
+          setTileBG(effectiveTheme)
         }
       },[])
 

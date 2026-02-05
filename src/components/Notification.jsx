@@ -23,12 +23,8 @@ function Notification() {
     const handleResize = () => setScreenWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     
-    // Show initial notification delay
-    const initialTimeout = setTimeout(() => setNotiOn(true), 6000);
-
     return () => {
       window.removeEventListener('resize', handleResize);
-      clearTimeout(initialTimeout);
     };
   }, []);
 

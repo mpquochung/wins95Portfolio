@@ -47,6 +47,7 @@ function ErrorBtn({themeDragBar, stateVal, text, setStateVal, runOpenFuction}) {
                 setContent(textGithub);
                 break;
 
+            case "scholar":
             case "webresume":
                 setYesNo(true);
                 setContent(textGithub);
@@ -79,11 +80,11 @@ function ErrorBtn({themeDragBar, stateVal, text, setStateVal, runOpenFuction}) {
                 return removeLocalStorage();
 
             case "github": 
-                return window.open('https://github.com/Yuteoctober/wins95Portfolio/', '_blank');
+                return window.open('https://github.com/mpquochung', '_blank');
 
-            case "webresume": 
-                
-            return window.open('https://yuteoctober.github.io/resume_web/', '_blank');
+            case "scholar": 
+            case "webresume":
+                return window.open('https://scholar.google.com/citations?user=hZjLlB8AAAAJ&hl=en', '_blank');
             
             case "cat": 
                 setRunCatVideo(true)

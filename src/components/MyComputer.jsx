@@ -62,7 +62,7 @@ function MyComputer() {
     {folder: 'DiskD',label: 'Hard Disk (D:)', img: imageMapping('Hard Disk (D:)')},
     {folder: 'CD-ROM',label: 'CD-ROM', img: imageMapping('CD-ROM')},
     {folder: 'Resume',label: 'Resume', img: imageMapping('Resume')},
-    {folder: 'Project',label: 'Project', img: imageMapping('Project')},
+    {folder: 'Games',label: 'Games', img: imageMapping('Games')},
     {folder: 'Picture',label: 'Picture', img: imageMapping('Picture')},
     {folder: 'Utility',label: 'Utility', img: imageMapping('Utility')},
   ]
@@ -173,6 +173,8 @@ function MyComputer() {
     }
   }
 
+
+  const isPublicationGrid = currentFolder === 'Publications';
 
   return (
     <Draggable
@@ -348,7 +350,7 @@ function MyComputer() {
             onClick={() => handleSetFocusItemTrue('MyComputer')}
           >
 
-            <div className="item_container" 
+            <div className={`item_container${currentFolder === 'Picture' ? ' picture-grid' : ''}${isPublicationGrid ? ' publications-grid' : ''}`} 
             onClick={(e) => {
               e.stopPropagation();
               setPopUpFolder(false)
@@ -359,14 +361,17 @@ function MyComputer() {
                 position: dragging? 'absolute' : '',
               }}
               >
-              {desktopIcon.filter(icon => icon.folderId === currentFolder).map(icon => (
+              {desktopIcon.filter(icon => icon.folderId === currentFolder).map(icon => {
+                const displayName = icon.label || icon.name;
+                return (
                 <Fragment key={icon.name}>
                   <Draggable
-                  axis={currentFolder === 'MyComputer' ? 'none' : 'both'}
+                  axis={currentFolder === 'MyComputer' || currentFolder === 'Picture' || isPublicationGrid ? 'none' : 'both'}
                   handle={'.icon'}
                   grid={[10, 10]}
                   scale={1}
                   bounds={false}
+                  disabled={currentFolder === 'Picture' || isPublicationGrid}
                   onStart={() => {
                     setDropTargetFolder('')
                     handleSetFocusItemTrue('MyComputer')
@@ -408,12 +413,14 @@ function MyComputer() {
                     <p className={icon.focus ? 'p_focus' : 'p_normal'}
                       style={iconTextSize(iconScreenSize)}
                     >
-                      {icon.name}
+                      {currentFolder === 'Picture' && icon.type === '.jpeg'
+                        ? displayName.slice(0, 12)
+                        : displayName}
                     </p>
                   </div>
                   </Draggable>
                 </Fragment>
-              ))}
+              )})}
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, } from 'react'
+import React, { useState, useEffect, useRef, useMemo, } from 'react'
 import UserContext from './Context'
 import { Filter } from 'bad-words';
 import badword from './badword'
@@ -33,12 +33,60 @@ import SpinningCat from './components/SpinningCat';
 import Patch from './components/Patch';
 import WindowsDragLogin from './components/WindowsDragLogin';
 import TaskManager from './components/TaskManager';
+import xpWallpaper from './assets/xpwallpaper.jpg'
+import publications from './publications';
+import PublicationPdf from './components/PublicationPdf';
+import PublicationsFolder from './components/PublicationsFolder';
+import NewsWidget from './components/NewsWidget';
 import { StyleHide, imageMapping,
   handleDoubleClickEnterLink,handleDoubleTapEnterMobile,
   handleDoubleClickiframe, handleDoubleTapiframeMobile,
   iconContainerSize, iconImgSize, iconTextSize,
-  handleDoubleClickPhotoOpen,
  } from './components/function/AppFunctions';
+
+const pictureFileMap = import.meta.glob('./assets/pictures/*.{png,jpg,jpeg,webp,gif,avif,svg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
+
+const publicationPdfMap = import.meta.glob('./assets/papers/*.pdf', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
+
+const publicationPdfByName = new Map(
+  Object.entries(publicationPdfMap).map(([path, url]) => {
+    const fileName = path.split('/').pop() || '';
+    return [fileName, url];
+  })
+);
+
+function getPictureEntries() {
+  return Object.entries(pictureFileMap)
+    .map(([path, url]) => {
+      const fileName = path.split('/').pop() || '';
+      const name = fileName.replace(/\.[^.]+$/, '');
+      return { name, photoSrc: url, fileKey: path };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+}
+
+function toFolderKey(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+}
+
+function resolvePublicationPdf(pdfFile) {
+  if (!pdfFile) return null;
+  if (publicationPdfMap[pdfFile]) return publicationPdfMap[pdfFile];
+  const fileName = pdfFile.split('/').pop();
+  return publicationPdfByName.get(fileName) || null;
+}
 
 
 function App() {
@@ -51,7 +99,7 @@ function App() {
   const [keyRef, setKeyRef] = useState(0)
   const [localBg, setLocalBg] = useState(() => {
     const prevBg = localStorage.getItem('background')
-    return prevBg? prevBg : null
+    return prevBg ? prevBg : xpWallpaper
   })
   const [localEffect, setLocalEffect] = useState(() => {
     const prevEffect = localStorage.getItem('effect')
@@ -80,11 +128,15 @@ function App() {
   });
 
   const [backgroundImageUrl, setBackgroundImageUrl] = useState('');
-  const [tileBG, setTileBG] = useState('#098684')
+  const [tileBG, setTileBG] = useState('#4B6894')
   const [tileScreen, setTileScreen] = useState(false)
   const [chatBotActive, setChatBotActive] = useState(false);
   const [runCatVideo, setRunCatVideo] = useState(false)
   const [newsPopup, setNewsPopup] = useState(false)
+  const [newsWidgetVisible, setNewsWidgetVisible] = useState(() => {
+    const stored = localStorage.getItem('newsWidgetHidden');
+    return stored !== 'true';
+  });
   const [onlineUser, setOnlineUser] = useState(0)
   const [sortedIcon, setSortedIcon] = useState([])
   const [sortIconTrigger, setSortIconTrigger] = useState(0)
@@ -105,6 +157,7 @@ function App() {
   const [rightClickPosition, setRightClickPosition] = useState({ x: 0, y: 0 });
   const [loadedMessages, setLoadedMessages] = useState([]);
   const [currentPhoto, setCurrentPhoto] = useState({});
+  const [currentPublicationPdf, setCurrentPublicationPdf] = useState(null);
   const [regErrorPopUp, setRegErrorPopUp] = useState(false)
   const [regErrorPopUpVal, setRegErrorPopUpVal] = useState('')
   const [runItemBox, setRunItemBox] = useState(false)
@@ -125,12 +178,17 @@ function App() {
   const socket = useRef(null);
   const [clearNotiTimeOut, setClearNotiTimeOut] = useState(null)
   const [newMessage, setNewMessage] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('newsWidgetHidden', newsWidgetVisible ? 'false' : 'true');
+  }, [newsWidgetVisible]);
   const [notiOn, setNotiOn] = useState(false);
   const [chatDown, setChatDown] = useState(false)
   const [key, setKey] = useState(0)
   const [dragging, setDragging] = useState(false)
   const DesktopRef = useRef(null);
   const ProjectFolderRef = useRef(null);
+  const PublicationsFolderRef = useRef(null);
   const ResumeFolderRef = useRef(null);
   const BinRef = useRef(null);
   const DiskRef = useRef(null);
@@ -141,7 +199,7 @@ function App() {
   const [reMountRun, setReMountRun] = useState(0)
   const [ErrorPopup, setErrorPopup] = useState(false)
   const [themeDragBar, setThemeDragBar] = useState(() => localStorage.getItem('barcolor') || '#14045c')
-  const [login, setLogin] = useState(true) 
+  const [login, setLogin] = useState(false) 
   const [windowsShutDownAnimation, setWindowsShutDownAnimation] = useState(false)
   const [detectMouse, setDetectMouse] = useState(false)
   const endOfMessagesRef = useRef(null);
@@ -191,6 +249,9 @@ function App() {
     expand: false, show: false, hide: false, focusItem: true,  // focusItem is window, item_1focus - 5 is the icon
     x: 0, y: 0, zIndex: 1,});
 
+  const [PublicationsExpand, setPublicationsExpand] = useState(
+  {expand: false, show: false, hide: false, focusItem: true, x: 0, y: 0, zIndex: 1,});
+
   const [MailExpand, setMailExpand] = useState(
   {expand: false, show: false, hide: false, focusItem: true, x: 0, y: 0, zIndex: 1,});
 
@@ -211,6 +272,8 @@ function App() {
 
   const [openProjectExpand, setOpenProjectExpand] = useState(
   {expand: false, show: false, hide: false, focusItem: true, x: 0, y: 0, zIndex: 1,});
+  const [publicationPdfExpand, setPublicationPdfExpand] = useState(
+  {expand: false, show: false, hide: false, focusItem: true, x: 0, y: 0, zIndex: 1,});
 
   const [MyComputerExpand, setMyComputerExpand] = useState(
   {expand: false, show: false, hide: false, focusItem: true, x: 0, y: 0, zIndex: 1,});
@@ -221,18 +284,101 @@ function App() {
   const [photoOpenExpand, setPhotoOpenExpand] = useState(
   {expand: false, show: false, hide: false, focusItem: true, x: 0, y: 0, zIndex: 1,});
 
+  const pictureEntries = useMemo(() => getPictureEntries(), []);
+  const pictureEntryMap = useMemo(() => {
+    const map = new Map();
+    pictureEntries.forEach(entry => {
+      map.set(entry.name, entry);
+    });
+    return map;
+  }, [pictureEntries]);
+
+  const publicationEntries = useMemo(() => {
+    return (publications || [])
+      .filter(entry => entry && String(entry.title || '').trim().length > 0)
+      .map(entry => ({
+        ...entry,
+        key: toFolderKey(entry.id || entry.title),
+        pdfUrl: resolvePublicationPdf(entry.pdfFile),
+      }));
+  }, []);
+
   const [desktopIcon, setDesktopIcon] = useState(() => {
-  const localItems = localStorage.getItem('icons');
+    const localItems = localStorage.getItem('icons');
 
-  const deleteIcon = ['Cat', 'AiAgent','Winamp','Paint','3dObject'];
+    const deleteIcon = ['Cat', 'AiAgent','Winamp','Paint','3dObject'];
 
-  const filteredItems = iconInfo.filter(item => !deleteIcon.includes(item.name));
+    const filteredItems = iconInfo.filter(item => !deleteIcon.includes(item.name) && item.type !== '.jpeg');
 
-  const parsedItems = localItems ? JSON.parse(localItems) : filteredItems;
+    const parsedItems = localItems ? JSON.parse(localItems) : filteredItems;
 
- 
-  return parsedItems;
-});
+    const migratedItems = parsedItems.map(item => {
+      const normalizedName = String(item.name || '');
+      const normalizedPic = String(item.pic || '');
+      if (normalizedName === 'WebResume' || normalizedName === 'Scholar Profile') {
+        return { ...item, name: 'Scholar', pic: 'Scholar' };
+      }
+      if (normalizedName === 'Scholar' && (normalizedPic === 'ScholarProfile' || normalizedPic === 'WebResume')) {
+        return { ...item, pic: 'Scholar' };
+      }
+      if (normalizedName === 'Project') {
+        return { ...item, name: 'Games' };
+      }
+      if (item.folderId === 'Project') {
+        return { ...item, folderId: 'Games' };
+      }
+      return item;
+    });
+
+    const existingByName = new Map(migratedItems.map(item => [item.name, item]));
+
+    const nonDynamicItems = migratedItems.filter(item => {
+      if (item.type === '.jpeg') return false;
+      return true;
+    });
+
+    const publicationsRoot = iconInfo.find(item => item.name === 'Publications');
+    if (publicationsRoot && !existingByName.has('Publications')) {
+      nonDynamicItems.push(publicationsRoot);
+    }
+
+    const existingPictureMap = new Map(
+      migratedItems
+        .filter(item => item.type === '.jpeg')
+        .map(item => [item.name, item])
+    );
+
+    const dynamicPictures = pictureEntries.map((entry, index) => {
+      const existing = existingPictureMap.get(entry.name);
+      const base = {
+        name: entry.name,
+        pic: 'Jpeg',
+        folderId: 'Picture',
+        size: 50,
+        type: '.jpeg',
+        x: 16 + index,
+        y: 16 + index,
+        photoSrc: entry.photoSrc,
+        fileKey: entry.fileKey,
+      };
+
+      if (existing) {
+        return {
+          ...base,
+          ...existing,
+          name: entry.name,
+          pic: 'Jpeg',
+          type: '.jpeg',
+          photoSrc: entry.photoSrc,
+          fileKey: entry.fileKey,
+        };
+      }
+
+      return base;
+    });
+
+    return [...nonDynamicItems, ...dynamicPictures];
+  });
 
   const [MineSweeperExpand, setMineSweeperExpand] = useState(
   {expand: false, show: false, hide: false, focusItem: true, x: 0, y: 0, zIndex: 1,});
@@ -268,20 +414,21 @@ function App() {
     {expand: false, show: false, hide: false, focusItem: true, x: 0, y: 0, zIndex: 1,});
 
   const [UserCreatedFolder, setUserCreatedFolder] = useState(() => {
-  const localFolders = localStorage.getItem('userFolders');
-  const parsed = localFolders ? JSON.parse(localFolders) : [];
-  return parsed.map(folder => ({
-    ...folder,
-    id: folder.id || null,
-    expand: false,
-    show: false,
-    hide: false,
-    focusItem: false,
-    x: 0,
-    y: 0,
-    zIndex: 1,
-  }));
-});
+    const localFolders = localStorage.getItem('userFolders');
+    const parsed = localFolders ? JSON.parse(localFolders) : [];
+
+    return parsed.map(folder => ({
+      ...folder,
+      id: folder.id || null,
+      expand: false,
+      show: false,
+      hide: false,
+      focusItem: false,
+      x: folder.x ?? 0,
+      y: folder.y ?? 0,
+      zIndex: 1,
+    }));
+  });
 
   const UserCreatedFolderRef = useRef([]);
 
@@ -294,7 +441,7 @@ function App() {
   
 
   
-    const allPicture = desktopIcon.filter(picture => picture.type === '.jpeg'); // photo open
+    const allPicture = desktopIcon.filter(picture => picture.type === '.jpeg' && picture.photoSrc); // photo open
 
   const textError = ( // error message
       <>
@@ -303,6 +450,41 @@ function App() {
           libraries are available.
       </>
   ) 
+
+  const pictureList = pictureEntries;
+
+  function openPictureByIndex(index) {
+    const entry = pictureEntries[index];
+    if (!entry) return false;
+    setCurrentPhoto({ name: entry.name, pic: entry.photoSrc });
+    return true;
+  }
+
+  function openPublicationPdf(entry) {
+    const resolvedPdf = entry?.pdfUrl || resolvePublicationPdf(entry?.pdfFile);
+    if (resolvedPdf) {
+      setCurrentPublicationPdf({
+        title: entry?.title || 'Publication',
+        pdfUrl: resolvedPdf,
+        pdfFile: entry?.pdfFile || '',
+      });
+      handleShow('PublicationPdf');
+      return true;
+    }
+    setRegErrorPopUp(true);
+    setRegErrorPopUpVal(entry?.pdfFile || entry?.title || 'Publication');
+    return false;
+  }
+
+  function openPublicationLink(url, label) {
+    if (url) {
+      window.open(url, '_blank');
+      return true;
+    }
+    setRegErrorPopUp(true);
+    setRegErrorPopUpVal(label || 'Link');
+    return false;
+  }
   
   function projectname() { // project name 
       if(projectUrl.length < 1) return;
@@ -317,10 +499,7 @@ function App() {
   const allClears = [ClearTOclippyThanksYouFunction, ClearTOclippySendemailfunction, ClearTOSongfunction, ClearTOclippyUsernameFunction];
 
   useEffect(() => { // force user to update version by clearing their local storage!
-    setTimeout(() => {
-      handleShow('Patch');
-    }, 2500);
-    
+    // Patch auto-popup disabled.
     if(!desktopIcon.find(icon => icon.name === 'PixelPic')) {
       localStorage.clear();
       location.reload();
@@ -628,15 +807,34 @@ useEffect(() => { // touch support device === true
 
 }, []);
 
+useEffect(() => {
+  // Auto open About in the center on first load
+  const width = 420;
+  const height = 475;
+  const x = Math.max(0, Math.round((window.innerWidth - width) / 2));
+  const y = Math.max(0, Math.round((window.innerHeight - height) / 2));
+  setMybioExpand(prev => ({
+    ...prev,
+    show: true,
+    hide: false,
+    focusItem: true,
+    x,
+    y,
+    zIndex: maxZindexRef.current + 1,
+  }));
+  maxZindexRef.current += 1;
+}, []);
+
 
 const handleOnDrag = (name, ref, type) => () => {
   setDragging(true)
   const iconRef = ref
-  if (iconRef && ResumeFolderRef.current && ProjectFolderRef.current) {
+  if (iconRef && ResumeFolderRef.current && ProjectFolderRef.current && PublicationsFolderRef.current) {
     const BinRect = BinRef.current.getBoundingClientRect();
     const iconRect = iconRef.getBoundingClientRect();
     const resumeFolderRect = ResumeFolderRef.current.getBoundingClientRect();
     const projectFolderRect = ProjectFolderRef.current.getBoundingClientRect();
+    const publicationsFolderRect = PublicationsFolderRef.current.getBoundingClientRect();
     const desktopRect = DesktopRef.current.getBoundingClientRect();
     const diskRect = DiskRef.current.getBoundingClientRect();
     const PictureRect = PictureRef.current.getBoundingClientRect();
@@ -714,8 +912,18 @@ const handleOnDrag = (name, ref, type) => () => {
       iconRect.top < projectFolderRect.bottom - offset &&
       iconRect.bottom > projectFolderRect.top + offset
     ) {
-      if(name === 'Project') return;
-      setDropTargetFolder('Project');
+      if(name === 'Games') return;
+      setDropTargetFolder('Games');
+    }
+    // Check for intersection with the Publications folder
+    else if (
+      iconRect.left < publicationsFolderRect.right - offset &&
+      iconRect.right > publicationsFolderRect.left + offset &&
+      iconRect.top < publicationsFolderRect.bottom - offset &&
+      iconRect.bottom > publicationsFolderRect.top + offset
+    ) {
+      if(name === 'Publications') return;
+      setDropTargetFolder('Publications');
     }
     // Check for intersection with the Disk 
     else if (
@@ -727,7 +935,7 @@ const handleOnDrag = (name, ref, type) => () => {
       // check within MyComputer
       if (name === 'MyComputer') return;
       // add new folder in this array
-      const validFolders = ['DiskC', 'DiskD', 'Resume', 'Project', 'Picture', 'RecycleBin', 'Utility', ...UserCreatedFolder.map(item => item.name)];
+      const validFolders = ['DiskC', 'DiskD', 'Resume', 'Games', 'Publications', 'Picture', 'RecycleBin', 'Utility', ...UserCreatedFolder.map(item => item.name)];
       if (validFolders.includes(currentFolder)) {
         setDropTargetFolder(currentFolder);
       }
@@ -774,10 +982,10 @@ function handleShowInfolder(name, type) { //important handleshow for in folder
       return;
     }
 
-    if (name === 'Project') {
-      setCurrentFolder('Project')
-      setSelectedFolder({label: 'Project', img: imageMapping(name)})
-      setUndo(prev => [...prev, 'Project'])
+    if (name === 'Games') {
+      setCurrentFolder('Games')
+      setSelectedFolder({label: 'Games', img: imageMapping(name)})
+      setUndo(prev => [...prev, 'Games'])
       return;
     }
 
@@ -798,7 +1006,7 @@ function handleShowInfolder(name, type) { //important handleshow for in folder
 
     if(type === 'folder') {
       setCurrentFolder(name)
-      setSelectedFolder({label: name, img: imageMapping('Project')})
+      setSelectedFolder({label: name, img: imageMapping('Games')})
       setUndo(prev => [...prev, name])
       return;
     }
@@ -851,12 +1059,12 @@ function handleShowInfolderMobile(name, type) { //important handleshow for in fo
       return;
     }
 
-    if (name === 'Project') {
+    if (name === 'Games') {
       setTimeout(() => {
-        setCurrentFolder('Project')
+        setCurrentFolder('Games')
       }, 100);
-      setSelectedFolder({label: 'Project', img: imageMapping(name)})
-      setUndo(prev => [...prev, 'Project'])
+      setSelectedFolder({label: 'Games', img: imageMapping(name)})
+      setUndo(prev => [...prev, 'Games'])
       return;
     }
 
@@ -882,7 +1090,7 @@ function handleShowInfolderMobile(name, type) { //important handleshow for in fo
       setTimeout(() => {
         setCurrentFolder(name)
       }, 100);
-      setSelectedFolder({label: name, img: imageMapping('Project')})
+      setSelectedFolder({label: name, img: imageMapping('Games')})
       setUndo(prev => [...prev, name])
       return;
     }
@@ -923,6 +1131,7 @@ function handleShowInfolderMobile(name, type) { //important handleshow for in fo
     PatchExpand, setPatchExpand,
     runCatVideo, setRunCatVideo,
     newsPopup, setNewsPopup,
+    newsWidgetVisible, setNewsWidgetVisible,
     onlineUser,
     UtilityRef,
     PaintExpand, setPaintExpand,
@@ -947,6 +1156,12 @@ function handleShowInfolderMobile(name, type) { //important handleshow for in fo
     rightClickPosition, setRightClickPosition,
     loadedMessages, setLoadedMessages,
     currentPhoto, setCurrentPhoto,
+    currentPublicationPdf, setCurrentPublicationPdf,
+    pictureList,
+    openPictureByIndex,
+    publicationEntries,
+    openPublicationPdf,
+    openPublicationLink,
     textError,
     runItemBox, setRunItemBox,
     RunInputVal, setRunInputVal,
@@ -971,6 +1186,7 @@ function handleShowInfolderMobile(name, type) { //important handleshow for in fo
     handleOnDrag,
     DesktopRef,
     ProjectFolderRef,
+    PublicationsFolderRef,
     ResumeFolderRef,
     DiskRef,
     handleDrop,
@@ -984,6 +1200,8 @@ function handleShowInfolderMobile(name, type) { //important handleshow for in fo
     imageMapping,
     lastTapTime, setLastTapTime,
     ResumeExpand, setResumeExpand,
+    PublicationsExpand, setPublicationsExpand,
+    publicationPdfExpand, setPublicationPdfExpand,
     handleShow, handleShowMobile,
     StyleHide,
     isTouchDevice, setIsTouchDevice,
@@ -1129,6 +1347,7 @@ function handleShowInfolderMobile(name, type) { //important handleshow for in fo
               });
             }}
             folderName={folder.name}
+            folderLabel={folder.label}
             userCreatedFolderMode={true}
             type='folder'
             refState={UserCreatedFolderRef.current[index]}
@@ -1165,6 +1384,8 @@ function handleShowInfolderMobile(name, type) { //important handleshow for in fo
           folderName='Utility'
         />
 
+        <PublicationsFolder/>
+
         <EmptyFolder
           state={photoOpenExpand} 
           setState={setPhotoOpenExpand}
@@ -1185,6 +1406,7 @@ function handleShowInfolderMobile(name, type) { //important handleshow for in fo
         <ProjectFolder/>
         <MailFolder/>
         <ResumeFile/>
+        <PublicationPdf/>
         <WebampPlayer/>
         <MineSweeper/>
         <MsnFolder/>
@@ -1193,6 +1415,7 @@ function handleShowInfolderMobile(name, type) { //important handleshow for in fo
         <Run/>
         <BTC/>
         <Dragdrop/>
+        <NewsWidget/>
         <Footer/>
       </UserContext.Provider>
     </>
@@ -1485,7 +1708,9 @@ function ObjectState() {
    
     { name: 'About',       setter: setMybioExpand,      usestate: MybioExpand,      color: 'rgba(46, 108, 176, 0.85)', size: 'small' },
     { name: 'Resume',      setter: setResumeExpand,     usestate: ResumeExpand,     color: 'rgba(65, 138, 68, 0.85)', size: 'small' },
-    { name: 'Project',     setter: setProjectExpand,    usestate: ProjectExpand,    color: 'rgba(211, 117, 0, 0.85)', size: 'small' },
+    { name: 'Games',        setter: setProjectExpand,     usestate: ProjectExpand,     color: 'rgba(211, 117, 0, 0.85)', size: 'small' },
+    { name: 'Publications',   setter: setPublicationsExpand,usestate: PublicationsExpand,color: 'rgba(127, 94, 62, 0.85)', size: 'small' },
+    { name: 'PublicationPdf', setter: setPublicationPdfExpand,usestate: publicationPdfExpand,color: 'rgba(127, 94, 62, 0.85)', size: 'small' },
     { name: 'Picture',     setter: setPictureExpand,    usestate: pictureExpand,    color: 'rgba(85, 50, 148, 0.85)', size: 'large' },
     { name: 'Mail',        setter: setMailExpand,       usestate: MailExpand,       color: 'rgba(178, 26, 77, 0.85)', size: 'small' },
     { name: 'Nft',         setter: setNftExpand,        usestate: NftExpand,        color: 'rgba(142, 29, 126, 0.85)', size: 'small' },
@@ -1563,15 +1788,46 @@ function handleShow(name) {
 
   if(name === '' || !name) return;
 
+  const clickedIcon = desktopIcon.find(icon => icon.name === name);
+  if (clickedIcon?.type === 'publication-link') {
+    if (clickedIcon.linkUrl) {
+      window.open(clickedIcon.linkUrl, '_blank');
+      return;
+    }
+    setRegErrorPopUp(true);
+    setRegErrorPopUpVal(clickedIcon.label || name);
+    return;
+  }
+
+  if (clickedIcon?.type === 'publication-pdf') {
+    const resolvedPdf = clickedIcon.pdfUrl || resolvePublicationPdf(clickedIcon.pdfFile);
+    if (resolvedPdf) {
+      setCurrentPublicationPdf({
+        title: clickedIcon.label || 'Publication',
+        pdfUrl: resolvedPdf,
+        pdfFile: clickedIcon.pdfFile,
+      });
+      handleShow('PublicationPdf');
+      return;
+    }
+    setRegErrorPopUp(true);
+    setRegErrorPopUpVal(clickedIcon.pdfFile || clickedIcon.label || name);
+    return;
+  }
+
   const lowerCaseName = name.toLowerCase().split(' ').join('');
   const allSetItems = ObjectState();
 
   const itemExists = allSetItems.some(item => item.name.toLowerCase().split(' ').join('') === lowerCaseName);
 
-  const pictureMatch = allPicture.find(picture => name.includes(picture.name));
+  const pictureMatch = allPicture.find(picture => picture.name === name);
   
   if (pictureMatch) {
-    handleDoubleClickPhotoOpen(name, setCurrentPhoto);
+    const entry = pictureEntryMap.get(pictureMatch.name);
+    const photoSrc = entry?.photoSrc || pictureMatch.photoSrc;
+    if (photoSrc) {
+      setCurrentPhoto({ name: pictureMatch.name, pic: photoSrc });
+    }
     handleShow('Photo');
     return;
   }
@@ -1670,6 +1926,33 @@ function handleShowMobile(name) {
   if (now - lastTapTime < 300) {
 
     if(name === '' || !name) return;
+
+    const clickedIcon = desktopIcon.find(icon => icon.name === name);
+    if (clickedIcon?.type === 'publication-link') {
+      if (clickedIcon.linkUrl) {
+        window.open(clickedIcon.linkUrl, '_blank');
+        return;
+      }
+      setRegErrorPopUp(true);
+      setRegErrorPopUpVal(clickedIcon.label || name);
+      return;
+    }
+
+    if (clickedIcon?.type === 'publication-pdf') {
+      const resolvedPdf = clickedIcon.pdfUrl || resolvePublicationPdf(clickedIcon.pdfFile);
+      if (resolvedPdf) {
+        setCurrentPublicationPdf({
+          title: clickedIcon.label || 'Publication',
+          pdfUrl: resolvedPdf,
+          pdfFile: clickedIcon.pdfFile,
+        });
+        handleShow('PublicationPdf');
+        return;
+      }
+      setRegErrorPopUp(true);
+      setRegErrorPopUpVal(clickedIcon.pdfFile || clickedIcon.label || name);
+      return;
+    }
   
     const lowerCaseName = name.toLowerCase().split(' ').join('');
   
@@ -1677,13 +1960,17 @@ function handleShowMobile(name) {
   
     const itemExists = allSetItems.some(item => item.name.toLowerCase().split(' ').join('') === lowerCaseName);
   
-    const pictureMatch = allPicture.find(picture => name.includes(picture.name));
-    
-    if (pictureMatch) {
-      handleDoubleClickPhotoOpen(name, setCurrentPhoto);
-      handleShow('Photo');
-      return;
+  const pictureMatch = allPicture.find(picture => picture.name === name);
+  
+  if (pictureMatch) {
+    const entry = pictureEntryMap.get(pictureMatch.name);
+    const photoSrc = entry?.photoSrc || pictureMatch.photoSrc;
+    if (photoSrc) {
+      setCurrentPhoto({ name: pictureMatch.name, pic: photoSrc });
     }
+    handleShow('Photo');
+    return;
+  }
   
     if (!itemExists) {
       setRegErrorPopUp(true);

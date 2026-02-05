@@ -135,7 +135,7 @@ function Login() {
                 <img src={login_icon} alt="login_icon" />
             </div>
             <div className="login_input">
-                <p className='login_des'>Type a user name and password to log on to Windows.</p>
+                <p className='login_des'>Type a user name and password to log on to Windows. (Just click 'OK' button on the right)</p>
                     <label>User name:</label>
                     <input type="text" maxLength={20} 
                       onChange={() => null}

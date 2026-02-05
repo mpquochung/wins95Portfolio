@@ -178,7 +178,7 @@
     margin: 0 auto;
     margin-top: 0;
     background: #c5c4c4;
-    overflow: hidden;
+    overflow-y: auto;
     word-break: break-word;
     grid-template-areas: 
     /* 'bio_h1 bio_h1' */
@@ -191,11 +191,22 @@
     display: flex;
     flex-direction: column;
     row-gap: 3px;
+    height: 100%;
+    overflow: visible;
+    padding-right: 6px;
 }
 
 .biotext_container p {
     color: #1f1e1e;
     white-space: normal;
+}
+
+.biotext_container a {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    color: #1f1e1e !important;
+    text-decoration: underline;
+    font-weight: normal;
 }
 
 .folder_content-bio .bio_img {
@@ -221,7 +232,8 @@
 
 .folder_content-bio .bio_text_1 {
     position: relative;
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 1.35;
     padding-top: 1rem;
     padding-left: 1rem;
     left: 1.2rem;
@@ -239,7 +251,8 @@
 
 .folder_content-bio .bio_text_1_other {
     position: relative;
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 1.35;
     padding-left: 1rem;
 
 }

@@ -84,22 +84,22 @@ function ProjectFolder() {
         y: window.innerWidth <= 500 ? 40 : 160,
       }}
       onStop={handleDragStop}
-      onStart={() => handleSetFocusItemTrue('Project')}
+      onStart={() => handleSetFocusItemTrue('Games')}
     >
       <div
-        onContextMenu={() => setCurrentRightClickFolder('Project')}
-        onTouchStart={() => setCurrentRightClickFolder('Project')}
+        onContextMenu={() => setCurrentRightClickFolder('Games')}
+        onTouchStart={() => setCurrentRightClickFolder('Games')}
         className="folder_folder-project"
         ref={ProjectFolderRef}
         onClick={(e) => {
           e.stopPropagation();
-          handleSetFocusItemTrue('Project');
+          handleSetFocusItemTrue('Games');
         }}
         style={{
           ...(
             ProjectExpand.expand
-              ? inlineStyleExpand('Project')
-              : inlineStyle('Project')
+              ? inlineStyleExpand('Games')
+              : inlineStyle('Games')
           ),
           overflow: dragging ? '' : 'hidden',
         }}
@@ -111,20 +111,20 @@ function ProjectFolder() {
           style={{ background: ProjectExpand.focusItem ? themeDragBar : '#757579' }}
         >
           <div className="folder_barname-project">
-            <img src={Project} alt="Project" />
-            <span>Project</span>
+            <img src={Project} alt="Games" />
+            <span>Games</span>
           </div>
           <div className="folder_barbtn-project">
             <div
               onClick={!isTouchDevice ? (e) => {
                 e.stopPropagation();
                 setProjectExpand((prev) => ({ ...prev, hide: true, focusItem: false }));
-                StyleHide('Project');
+                StyleHide('Games');
               } : undefined}
               onTouchEnd={(e) => {
                 e.stopPropagation();
                 setProjectExpand((prev) => ({ ...prev, hide: true, focusItem: false }));
-                StyleHide('Project');
+                StyleHide('Games');
               }}
               onTouchStart={(e) => e.stopPropagation()}
             >
@@ -140,8 +140,8 @@ function ProjectFolder() {
             <div>
               <p
                 className="x-project"
-                onClick={!isTouchDevice ? () => deleteTap('Project') : undefined}
-                onTouchEnd={() => deleteTap('Project')}
+                onClick={!isTouchDevice ? () => deleteTap('Games') : undefined}
+                onTouchEnd={() => deleteTap('Games')}
               >
                 ×
               </p>
@@ -171,10 +171,10 @@ function ProjectFolder() {
               onClick={(e) => {
                 e.stopPropagation() 
                 iconFocusIcon('');
-                handleSetFocusItemTrue('Project');
+                handleSetFocusItemTrue('Games');
               }}
             >
-              {desktopIcon.filter((icon) => icon.folderId === 'Project').map((icon) => (
+              {desktopIcon.filter((icon) => icon.folderId === 'Games').map((icon) => (
                 <Draggable
                   axis="both"
                   handle=".icon"
@@ -183,7 +183,7 @@ function ProjectFolder() {
                   bounds={false}
                   onStart={() => {
                     setDropTargetFolder('');
-                    handleSetFocusItemTrue('Project');
+                    handleSetFocusItemTrue('Games');
                   }}
                   onDrag={handleOnDrag(icon.name, iconRefs.current[icon.name])}
                   onStop={(e) => {
@@ -237,15 +237,15 @@ function ProjectFolder() {
         <div className="btm_bar_container-project">
           <div className="object_bar-project">
             <p>
-              {desktopIcon.filter((icon) => icon.folderId === 'Project').some((icon) => icon.focus)
+              {desktopIcon.filter((icon) => icon.folderId === 'Games').some((icon) => icon.focus)
                 ? '1 object(s) selected'
-                : `${desktopIcon.filter((icon) => icon.folderId === 'Project').length} object(s)`}
+                : `${desktopIcon.filter((icon) => icon.folderId === 'Games').length} object(s)`}
             </p>
           </div>
           <div className="size_bar-project">
             <p>
               {(() => {
-                const filteredIcons = desktopIcon.filter((icon) => icon.folderId === 'Project');
+                const filteredIcons = desktopIcon.filter((icon) => icon.folderId === 'Games');
                 const totalSize = filteredIcons.reduce((total, icon) => total + icon.size, 0);
                 return filteredIcons.every((icon) => !icon.focus)
                   ? totalSize

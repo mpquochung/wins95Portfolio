@@ -197,6 +197,28 @@
     padding: 8px 2px;
 }
 
+.item_container.picture-grid {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(6, minmax(70px, 1fr));
+    grid-auto-rows: minmax(90px, auto);
+    gap: 8px;
+    padding: 8px;
+    justify-items: center;
+    align-items: start;
+}
+
+.item_container.publications-grid {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(80px, 1fr));
+    grid-auto-rows: minmax(90px, auto);
+    gap: 10px;
+    padding: 10px;
+    justify-items: center;
+    align-items: start;
+}
+
 
 .item_container .item_1 {
     cursor: default;
@@ -252,6 +274,3 @@
     padding-top: 2px;
     margin-left: 2px;
 }
-
-
-

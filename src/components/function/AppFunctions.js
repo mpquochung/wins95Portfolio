@@ -14,17 +14,6 @@ import disk from '../../assets/c.png'
 import rom from '../../assets/rom.png'
 import btc from '../../assets/btc_icon.webp'
 import jpeg from '../../assets/jpeg.png'
-import firstPic from '../../assets/001.jpg'
-import secondPic from '../../assets/002.jpg'
-import thirdPic from '../../assets/003.jpg'
-import fourthPic from '../../assets/004.jpg'
-import fifthPic from '../../assets/005.jpg'
-import sixthPic from '../../assets/006.jpg'
-import seventhPic from '../../assets/007.jpg'
-import eighthPic from '../../assets/008.jpg'
-import ninthPic from '../../assets/009.jpg'
-import tenthPic from '../../assets/010.jpg'
-import eleventhPic from '../../assets/011.jpg'
 import binEmp from '../../assets/bin2.png'
 import reset from '../../assets/reset.png'
 import github from '../../assets/github.png'
@@ -41,6 +30,8 @@ import taskmanager from '../../assets/taskmanager.png'
 import notepad from '../../assets/notepad.png'
 import store from '../../assets/store.png'
 import layer from '../../assets/layer.png'
+import scholar from '../../assets/Google_Scholar_logo.svg.png'
+import projectPage from '../../assets/tumblr_83a5ac2c6a28489a8b50d7448f812e1f_dac194f2_540.png'
 
 
 
@@ -92,6 +83,8 @@ export function imageMapping (name, type) {
       return Mail;
 
     case 'Project':
+    case 'Games':
+    case 'Publications':
     case 'Picture':
     case 'Utility':
       return Project;
@@ -114,8 +107,19 @@ export function imageMapping (name, type) {
       return MSN;
 
     case 'Internet':
-    case 'WebResume':
+    case 'Website':
       return ie;
+
+    case 'PdfDoc':
+      return file;
+
+    case 'WebResume':
+    case 'Scholar':
+    case 'ScholarProfile':
+      return scholar;
+
+    case 'ProjectPage':
+      return projectPage;
 
     case 'Settings':
       return settings;
@@ -210,46 +214,6 @@ export function imageMapping (name, type) {
       return null;
   }
 }
-
-// set photo to the current photo
-const photoMap = {
-  '1': firstPic,
-  '2': secondPic,
-  '3': thirdPic,
-  '4': fourthPic,
-  '5': fifthPic,
-  '6': sixthPic,
-  '7': seventhPic,
-  '8': eighthPic,
-  '9': ninthPic,
-  '10': tenthPic,
-  '11': eleventhPic,
-};
-
-export function handleDoubleClickPhotoOpen(name, setCurrentPhoto) {
-  
-  const normalized = String(parseInt(name, 10));
-
-  const pic = photoMap[normalized];
-  if (!pic) return;
-
-  setCurrentPhoto({ name: normalized, pic });
-}
-
-
-export function handleDoubleClickPhotoOpenMobile(name, setCurrentPhoto, lastTapTime, setLastTapTime) {
-  const now = Date.now();
-  if (now - lastTapTime < 300) {
-    
-    const normalized = String(parseInt(name, 10));
-
-  const pic = photoMap[normalized];
-  if (!pic) return;
-
-  setCurrentPhoto({ name: normalized, pic });
-  }
-  setLastTapTime(now);
-  }
 
 // click to open links
 export function handleDoubleClickiframe(name, setOpenProjectExpand, setProjectUrl) {

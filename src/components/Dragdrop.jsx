@@ -152,7 +152,9 @@ function Dragdrop() {
       <div className='drag_drop'
         key={refresh}
       >
-        {desktopIcon.filter(icon => icon.folderId === 'Desktop').map((icon) => (
+        {desktopIcon.filter(icon => icon.folderId === 'Desktop').map((icon) => {
+          const displayName = icon.label || icon.name;
+          return (
           <Draggable
             key={icon.name}
             grid={[10, 10]}
@@ -200,11 +202,11 @@ function Dragdrop() {
               <p className={icon.focus ? 'p_focus' : ''}
                 style={iconTextSize(iconScreenSize)}
               >
-                {icon.name}
+                {displayName}
               </p>
             </div>
           </Draggable> 
-        ))} 
+        )})} 
       </div>
     </section>
   );

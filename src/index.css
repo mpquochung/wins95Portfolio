@@ -313,6 +313,11 @@ body {
     z-index: 2;
 }
 
+.icon_time_container img.news_widget_icon {
+    width: 24px;
+    height: 24px;
+}
+
 .footer .time .p_time_div {
     position: relative;
     top: 1px;
@@ -840,12 +845,14 @@ body {
 /* -------------- clippy ---------------- */
 
 .clippy_container {
-    position: absolute;
+    position: fixed;
     width: 100px;
     height: 100px;
     right: 12px;
-    bottom: 2rem;
-    z-index: 1000;
+    top: 40%;
+    bottom: auto;
+    transform: translateY(-50%);
+    z-index: 200;
 }
 
 /* --- disable hover touch ---- */
@@ -1004,4 +1011,3 @@ body {
 .search_bar span:hover {
     opacity: 1;
 }
-
