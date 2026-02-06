@@ -3,7 +3,7 @@ import { useContext, useState } from "react";
 import Draggable from 'react-draggable'
 import { motion } from 'framer-motion';
 import About from '../assets/ipng.png'
-import bioPC from '../assets/bio_pc.png'
+import bioPC from '../assets/avt.png'
 import tech from '../assets/tech.png'
 import hobby from '../assets/hobby.png'
 import '../css/MyBioFolder.css'
@@ -78,11 +78,11 @@ function MyBioFolder() {
         <br />
         <span>AI Scientist</span>
         <br />
-        <span>+84 785 334 804 </span>
+        <span>+84 78five33four804 </span>
         <br />
-        <span>maphquochung@gmail.com</span>
+        <span>maphquochung[at]gmail.com</span>
         <br />
-        <span>pqhung.mai@n2tp.com</span>
+        <span>pqhung.mai[at]n2tp[dot]com</span>
         <br />
         <br />
         <strong>Location: </strong>

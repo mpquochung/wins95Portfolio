@@ -357,8 +357,8 @@ export default function Footer() {
 
 
     useEffect(() => { // show 9s, hide ~1.5s, repeat
-        const SHOW_MS = 9000;
-        const HIDE_MS = 1500;
+        const SHOW_MS = 7500;
+        const HIDE_MS = 7000;
         let hideTimeout = null;
 
         const showOnce = () => {
