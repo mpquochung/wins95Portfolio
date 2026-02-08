@@ -37,7 +37,7 @@ export const clippyPhrase = {
         { phrase: "Trust your instincts – they’re often wiser than you think.", animation: clippy4 },
         { phrase: "Embrace the challenges, they’ll make you stronger in the end.", animation: clippy6 },
         { phrase: "Sometimes, a simple ‘thank you’ can make a big difference.", animation: clippy5 },
-        { phrase: "One day, you'll leave this world behind, so live a life you will remember ", animation: clippy4 },
+        { phrase: "Onward we go! ", animation: clippy4 },
         { phrase: "Success is not about the destination, it’s about the journey.", animation: clippy1 }
     ],
     interruption: [{ phrase: "Please, do not interrupt me!", animation: clippyNo }]
